@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Post something</h1>
+<form>
+    <div class="mb-4 mt-4">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" placeholder="Write here..." id="title" aria-describedby="title">
+    </div>
+    <div class="mb-4 mt-4">
+        <label for="title" class="form-label">Your thoughts</label>
+        <textarea class="form-control" placeholder="Write here..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
