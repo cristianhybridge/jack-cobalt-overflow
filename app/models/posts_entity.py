@@ -5,6 +5,7 @@ class Posts(db.Model):
     __tablename__ = 'posts'
 
     post_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
     commentary = db.Column(db.String(1000), nullable=False)
     created_by = db.Column(db.Integer, nullable=False)
 
