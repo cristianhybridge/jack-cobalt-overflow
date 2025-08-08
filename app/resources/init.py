@@ -6,5 +6,5 @@ def register_api_routes(app):
     api = Api(app)
 
     # Register the resource routes
-    api.add_resource(UsersResource, '/users', '/users/<int:user_id>')
-    api.add_resource(PostsResource, '/posts', '/posts/<int:post_id>')
+    api.add_resource(UsersResource, '/api/users', '/users/<int:user_id>')
+    api.add_resource(PostsResource, '/api/posts', '/posts/<int:post_id>')

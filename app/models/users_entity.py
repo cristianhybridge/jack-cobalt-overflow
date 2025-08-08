@@ -12,4 +12,4 @@ class Users(db.Model, UserMixin):
 
     def __repr__(self):
         # Corregimos el __repr__ para que coincida con las columnas
-        return f"User('{self.user_id}', '{self.username}', '{self.nickname}')"
+        return self.nickname

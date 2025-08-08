@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 db = SQLAlchemy()
 migrate = Migrate()
 
+from app.services.posts_service import PostsService
+
 
 def create_app():
     app = Flask(__name__)
@@ -28,7 +30,9 @@ def create_app():
     # ------------------ Endpoint Routing
     @app.route('/')
     def home():
-        return render_template('home.html')
+        posts_service = PostsService()
+        posts = posts_service.get_all()
+        return render_template('home.html', posts=posts)
 
     def login():
         return render_template('login.html')

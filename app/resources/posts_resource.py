@@ -3,21 +3,26 @@ from flask_restful import Resource
 from app.models.posts_entity import db, Posts
 
 class PostsResource(Resource):
-    def get(self):
+    def get_all(self):
         all_posts = Posts.query.all()
 
-        users_list = [
+        list = [
             {
                 "post_id": post.post_id,
+                "created_by": post.created_by,
+                "creator" : post.creator.username,
                 "title": post.title,
                 "commentary": post.commentary,
-                "created_by": post.created_by,
+                "affected_area": post.affected_area,
+                "priority": post.priority,
+                "creation_date": post.creation_date.isoformat(),
+                "expiration_date": post.expiration_date.isoformat()                
             } for post in all_posts
         ]
 
-        print(f"PostsResource/GetAll: {users_list}")
+        print(f"PostsResource/GetAll: {list}")
 
-        return users_list, 200
+        return list, 200
 
     # def post(self):
     #     data = request.get_json()
