@@ -4,7 +4,7 @@ from psycopg2.errors import UniqueViolation
 from app.models.users_entity import db, Users
 from sqlalchemy.exc import IntegrityError
 
-def register_users_routes(app):
+def users_routes(app):
     @app.route('/api/users', methods=['GET', 'POST'])
     def users():
         if request.method == 'GET':
