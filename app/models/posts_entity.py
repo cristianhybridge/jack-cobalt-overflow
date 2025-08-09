@@ -13,6 +13,8 @@ class Posts(db.Model):
     commentary = db.Column(db.String(1000), nullable=False)
     affected_area = db.Column(db.String(100), nullable=True)
     priority = db.Column(db.Integer, nullable=True)
+    upvotes = db.Column(db.Integer, nullable=True)
+    downvotes = db.Column(db.Integer, nullable=True)
     creation_date = db.Column(db.DateTime(timezone=True), nullable=False, default=func.now())
     expiration_date = db.Column(db.DateTime(timezone=True), nullable=False)
     

@@ -9,3 +9,6 @@ class PostsService:
 
     def get_by_id(self, post_id):
         return self.posts_repository.model.query.filter_by(post_id=post_id).first()
+    
+    def post_create(self, post):
+        self.posts_repository.model.post(post)

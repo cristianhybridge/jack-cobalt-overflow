@@ -11,10 +11,10 @@ migrate = Migrate()
 
 from app.services.posts_service import PostsService
 
-
 def create_app():
     app = Flask(__name__)
     load_dotenv()
+    app.secret_key = os.getenv('SECRET_KEY') or 'a-very-secret-key'
 
     # ------------------ SQL Connection   
     user = os.getenv("user")
@@ -23,7 +23,7 @@ def create_app():
     port = os.getenv("port")
     dbname = os.getenv("dbname")
 
-    DATABASE_URL = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
+    DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -33,9 +33,14 @@ def create_app():
         posts_service = PostsService()
         posts = posts_service.get_all()
         return render_template('home.html', posts=posts)
-
+    
+    @app.route('/login')
     def login():
         return render_template('login.html')
+    
+    @app.route('/register')
+    def register():
+        return render_template('register.html')
 
     @app.route('/post')
     def post():
@@ -59,6 +64,10 @@ def create_app():
         print(f"Failed to connect: {e}")
 
     # ------------------ Endpoint Routing & Resources
+    from app.resources.users_resource import register_users_routes
+    register_users_routes(app)
+
+    # Register your API routes too
     from app.resources.init import register_api_routes
     register_api_routes(app)
     # ------------------

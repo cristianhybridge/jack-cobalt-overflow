@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center flex-column">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="w-50" style="max-width: 25%;">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/api/users" class="w-50" style="max-width: 25%;">
+        <div class="mb-3 text-center">
+            <h1>Register</h1>
+        </div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input name="username" class="form-control" id="username" value="{{ username|default('') }}">
+        </div>
+        <div class="mb-3">
+            <label for="password" typeof="password" class="form-label">Password</label>
+            <input name="password" type="password" class="form-control" id="password">
+        </div>
+        <div class="mb-3">
+            <label for="nickname" class="form-label">Nickname</label>
+            <input name="nickname" class="form-control" id="nickname" value="{{ nickname|default('') }}">
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Submit</button>
+    </form>
+</div>
+{% endblock %}
