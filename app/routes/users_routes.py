@@ -1,55 +1,57 @@
-﻿from flask import request, render_template, redirect, url_for, flash
-from psycopg2.errors import UniqueViolation
-
-from app.models.users_entity import db, Users
+﻿from flask import request, jsonify
 from sqlalchemy.exc import IntegrityError
+from app.models.users_entity import db, Users
 
-def users_routes(app):
+def UserRoutes(app):
     @app.route('/api/users', methods=['GET', 'POST'])
-    def users():
+    def handle_users():
         if request.method == 'GET':
-            all_users = Users.query.all()
-            users_list = [
-                {
-                    "user_id": user.user_id,
-                    "username": user.username,
-                    "nickname": user.nickname,
-                }
-                for user in all_users
-            ]
-            return render_template('users.html', users=users_list)
-
-        else:
-            if request.is_json:
-                data = request.get_json()
-            else:
-                data = request.form
-
-            new_user = Users(
-                username=data.get("username"),
-                password=data.get("password"),
-                nickname=data.get("nickname")
-            )
-
             try:
+                all_users = Users.query.all()
+                users_list = [
+                    {
+                        "user_id": user.user_id,
+                        "username": user.username,
+                        "nickname": user.nickname,
+                    }
+                    for user in all_users
+                ]
+
+                return jsonify(users_list), 200
+
+            except Exception as e:
+                return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+        elif request.method == 'POST':
+            try:
+                if not request.is_json:
+                    return jsonify({"error": "Request must be JSON"}), 400
+
+                data = request.get_json()
+
+                username = data.get("username")
+                password = data.get("password")
+                nickname = data.get("nickname")
+
+                if not all([username, password, nickname]):
+                    return jsonify({"error": "Missing one or more required fields"}), 400
+
+                new_user = Users(
+                    username=username,
+                    password=password,
+                    nickname=nickname
+                )
+
                 db.session.add(new_user)
                 db.session.commit()
-                return redirect(url_for('home'))
+
+                return jsonify({"message": "User created successfully!", "user_id": new_user.user_id}), 201
+
             except IntegrityError as e:
                 db.session.rollback()
-                # Check if the original exception is UniqueViolation
-                if isinstance(e.orig, UniqueViolation):
-                    flash("Username or nickname already exists.", "danger")
-                    
-                    return render_template(
-                        'register.html',
-                        username=data.get("username"),
-                        nickname=data.get("nickname")), 409
-                
-                else:
-                    flash("Database error occurred.", "danger")
+                return jsonify({"error": "Username or nickname already exists."}), 409
 
-                    return render_template(
-                        'register.html',
-                        username=data.get("username"),
-                        nickname=data.get("nickname")), 500
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return None

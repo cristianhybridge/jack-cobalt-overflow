@@ -5,6 +5,7 @@ from flask_restful import Api
 import os
 from dotenv import load_dotenv
 
+
 # --- Inicialización de extensiones fuera del create_app ---
 db = SQLAlchemy()
 migrate = Migrate()
@@ -30,8 +31,11 @@ def create_app():
     # ------------------ Endpoint Routing
     @app.route('/')
     def home():
-        posts_service = PostsService()
-        posts = posts_service.get_all()
+        from app.models import Posts
+        posts = db.session.query(Posts).all()
+        for post in posts:
+            print(f"Debug votes: {post.votes}")
+        
         return render_template('home.html', posts=posts)
     
     @app.route('/login')
@@ -42,9 +46,15 @@ def create_app():
     def register():
         return render_template('register.html')
 
-    @app.route('/post')
-    def post():
-        return render_template('post.html')
+    @app.route('/post/<int:id>')
+    def post(id):
+        from app.models import Posts
+        post = Posts.query.get_or_404(id)
+        return render_template('post.html', post=post)
+
+    @app.route('/post/new')
+    def new_post():
+        return render_template('new_post.html')
 
     @app.route('/profile/<int:id>')
     def profile(id):
@@ -64,12 +74,18 @@ def create_app():
         print(f"Failed to connect: {e}")
 
     # ------------------ Endpoint Routing & Resources
-    from app.resources.users_resource import register_users_routes
-    register_users_routes(app)
+    from app.routes.users_routes import UserRoutes
+    UserRoutes(app)
+    
+    from app.routes.posts_routes import PostRoutes
+    PostRoutes(app)
+    
+    from app.routes.post_vote_routes import PostVoteRoutes
+    PostVoteRoutes(app)
+    
+    from app.routes.post_comment_routes import PostCommentRoutes
+    PostCommentRoutes(app)
 
-    # Register your API routes too
-    from app.resources.init import register_api_routes
-    register_api_routes(app)
     # ------------------
 
     return app

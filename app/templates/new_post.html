@@ -1,0 +1,18 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Agregar a bitácora</h1>
+<form method="POST" action="/api/posts" class="w-50" style="max-width: 25%;">
+    <div class="mb-4 mt-4">
+        <label for="title" class="form-label">Título</label>
+        <input type="text" class="form-control" placeholder="Escribe algo..." id="title" aria-describedby="title">
+    </div>
+    <div class="mb-4 mt-4">
+        <label for="commentary" class="form-label">Comentarios</label>
+        <textarea class="form-control" placeholder="Escribe algo..." id="commentary"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
