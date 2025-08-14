@@ -2,7 +2,6 @@
 
 from sqlalchemy import func, UniqueConstraint, ForeignKey
 from sqlalchemy.orm import relationship
-
 from app import db
 
 class PostVote(db.Model):

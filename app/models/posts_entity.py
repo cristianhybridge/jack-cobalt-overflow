@@ -30,6 +30,15 @@ class Posts(db.Model):
             .scalar()
         print(f"[DEBUG] Post {self.post_id} -> votos = {count}")
         return count
+    
+    @hybrid_property
+    def comments_count(self):
+        from app.models.post_comment_entity import PostComment
+        count = (db.session.query(func.count(PostComment.post_comment_id))
+                 .filter(PostComment.post_id == self.post_id)
+                 .scalar())
+        print(f"[DEBUG] Post {self.post_id} -> comments_count = {count}")
+        return count
 
 
     # @votes.expression

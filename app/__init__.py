@@ -1,14 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, g
+from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 import os
 from dotenv import load_dotenv
 
-
-# --- Inicialización de extensiones fuera del create_app ---
+# Inicializacion de extensiones
 db = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
 
 from app.services.posts_service import PostsService
 
@@ -27,6 +28,29 @@ def create_app():
     DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # ------------------ JWT
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-secret")
+    # Usaremos cookies HttpOnly para SSR sin JS
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_COOKIE_SECURE"] = False      # True en producción con HTTPS
+    app.config["JWT_COOKIE_SAMESITE"] = "Lax"
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # Mínimo: desactiva CSRF; en prod actívalo
+
+    jwt.init_app(app)
+
+    @app.before_request
+    def load_current_user():
+        g.current_user_id = None
+        try:
+            verify_jwt_in_request(optional=True)
+            g.current_user_id = get_jwt_identity()
+        except Exception:
+            pass
+
+    @app.context_processor
+    def inject_user():
+        return {"current_user_id": getattr(g, "current_user_id", None)}
 
     # ------------------ Endpoint Routing
     @app.route('/')
@@ -49,8 +73,10 @@ def create_app():
     @app.route('/post/<int:id>')
     def post(id):
         from app.models import Posts
+        from app.models import PostComment
         post = Posts.query.get_or_404(id)
-        return render_template('post.html', post=post)
+        post_comments = db.session.query(PostComment).filter_by(post_id=post.post_id).all()
+        return render_template('post.html', post=post, post_comments=post_comments)
 
     @app.route('/post/new')
     def new_post():
@@ -73,7 +99,7 @@ def create_app():
     except Exception as e:
         print(f"Failed to connect: {e}")
 
-    # ------------------ Endpoint Routing & Resources
+    # ------------------ Endpoint Routing & Blueprints
     from app.routes.users_routes import UserRoutes
     UserRoutes(app)
     
@@ -85,6 +111,9 @@ def create_app():
     
     from app.routes.post_comment_routes import PostCommentRoutes
     PostCommentRoutes(app)
+
+    from app.routes.auth_routes import AuthRoutes
+    AuthRoutes(app)
 
     # ------------------
 

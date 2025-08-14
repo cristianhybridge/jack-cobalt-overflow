@@ -1,9 +1,12 @@
-﻿from flask import request, jsonify
+﻿from flask import request, jsonify, redirect, url_for
 from sqlalchemy.exc import IntegrityError
 from app.models.post_comment_entity import db, PostComment
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 def PostCommentRoutes(app):
     @app.route('/api/post-comment', methods=['GET', 'POST'])
+    @jwt_required(optional=True)
     def post_comment():
         if request.method == 'GET':
             try:
@@ -26,10 +29,13 @@ def PostCommentRoutes(app):
 
         elif request.method == 'POST':
             try:
-                if not request.is_json:
-                    return jsonify({"error": "Request must be JSON"}), 400
+                print("Received form data:", request.form)
 
-                data = request.get_json()
+                # Check if it's form data or JSON
+                if request.is_json:
+                    data = request.get_json()
+                else:
+                    data = request.form
 
                 post_id = data.get("post_id")
                 created_by = data.get("created_by")
@@ -47,7 +53,7 @@ def PostCommentRoutes(app):
                 db.session.add(new_comment)
                 db.session.commit()
 
-                return jsonify({"message": "Comment created successfully!", "comment_id": new_comment.post_comment_id}), 201
+                return redirect(url_for('post', id=post_id))
 
             except IntegrityError as e:
                 db.session.rollback()
@@ -56,4 +62,30 @@ def PostCommentRoutes(app):
             except Exception as e:
                 db.session.rollback()
                 return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return None
+    @app.route('/api/post-comment/<int:id>', methods=['DELETE'])
+    @jwt_required(optional=True)
+    def delete_post_comment(id):
+        try:
+            comment_to_delete = PostComment.query.get_or_404(id)
+
+            db.session.delete(comment_to_delete)
+            db.session.commit()
+
+            return jsonify({"message": f"Comment {id} deleted successfully."}), 200
+
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+
+    # Delete hardcodeado para no usar javascript jeje
+    @app.route("/api/post-comment/<int:comment_id>", methods=["POST"])
+    @jwt_required(optional=True)
+    def delete_comment(comment_id):
+        if request.form.get("_method") == "DELETE":
+            comment = PostComment.query.get_or_404(comment_id)
+            post_id = comment.post_id
+            db.session.delete(comment)
+            db.session.commit()
+            return redirect(url_for('post', id=post_id))
         return None

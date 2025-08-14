@@ -10,26 +10,39 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('home') }}">Polaris Overflow</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
         <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home') }}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('new_post') }}">Publicar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('profile', id=123) }}">Mi perfil</a>
+                </li>
+            </ul>
+
             <div class="d-flex">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('home') }}">Explore</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile', id=123) }}">My Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('new_post') }}">Post something</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">Login / Register</a>
-                    </li>
-                </ul>
+                {% if current_user_id %}
+                <form action="{{ url_for('logout') }}" method="post" class="d-inline">
+                    <button class="btn btn-outline-secondary btn-sm" type="submit">Salir</button>
+                </form>
+                {% else %}
+                <a class="btn btn-primary btn-sm" href="{{ url_for('login_view') }}">Login</a>
+                {% endif %}
             </div>
         </div>
     </div>
 </nav>
+
 <div class="container mt-5">
     {% block content %}{% endblock %}
 </div>

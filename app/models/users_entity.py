@@ -1,4 +1,5 @@
 from app import db
+from werkzeug.security import check_password_hash
 
 # Define el modelo de usuario
 class Users(db.Model):
@@ -9,6 +10,11 @@ class Users(db.Model):
     password = db.Column(db.String(20), nullable=False)
     nickname = db.Column(db.String(20), unique=True, nullable=False)
 
+    def set_password(self, raw_password: str):
+        self.password = generate_password_hash(raw_password)
+
+    def check_password(self, raw_password: str) -> bool:
+        return check_password_hash(self.password, raw_password)
+    
     def __repr__(self):
-        # Corregimos el __repr__ para que coincida con las columnas
         return self.nickname
