@@ -16,8 +16,8 @@ class UsersService:
             return None
         return Users.query.filter_by(username=username).first()
 
-    def create_user(self, username: str, password: str, email: str | None = None) -> Users:
-        user = Users(username=username, email=email)
+    def create_user(self, username: str, password: str, nickname: str | None = None) -> Users:
+        user = Users(username=username, nickname=nickname)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -26,5 +26,8 @@ class UsersService:
     def verify_credentials(self, username: str, password: str) -> Users | None:
         user = self.find_user_by_username(username)
         if user and user.check_password(password):
+            print("users_service::verify_credentials = User verified")
             return user
-        return None
+        else:
+            print("users_service::verify_credentials = Not autorized")
+            return None

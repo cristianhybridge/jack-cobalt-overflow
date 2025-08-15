@@ -1,5 +1,6 @@
 from app import db
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 # Define el modelo de usuario
 class Users(db.Model):
@@ -7,7 +8,7 @@ class Users(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     nickname = db.Column(db.String(20), unique=True, nullable=False)
 
     def set_password(self, raw_password: str):

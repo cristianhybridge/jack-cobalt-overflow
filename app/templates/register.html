@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Registro{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center flex-column">
@@ -20,21 +20,21 @@
 
     <form method="POST" action="/api/users" class="w-50" style="max-width: 25%;">
         <div class="mb-3 text-center">
-            <h1>Register</h1>
+            <h1>Registro</h1>
         </div>
         <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
+            <label for="username" class="form-label">Crea un Usuario</label>
             <input name="username" class="form-control" id="username" value="{{ username|default('') }}">
         </div>
         <div class="mb-3">
-            <label for="password" typeof="password" class="form-label">Password</label>
+            <label for="password" typeof="password" class="form-label">Crea una Contraseña</label>
             <input name="password" type="password" class="form-control" id="password">
         </div>
         <div class="mb-3">
-            <label for="nickname" class="form-label">Nickname</label>
+            <label for="nickname" class="form-label">Apodo</label>
             <input name="nickname" class="form-control" id="nickname" value="{{ nickname|default('') }}">
         </div>
-        <button type="submit" class="btn btn-primary w-100">Submit</button>
+        <button type="submit" class="btn btn-primary w-100">Crear usuario</button>
     </form>
 </div>
 {% endblock %}

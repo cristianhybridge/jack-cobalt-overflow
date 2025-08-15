@@ -1,24 +1,22 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_restful import Api
 import os
 from dotenv import load_dotenv
 
-# Inicializacion de extensiones
+# Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 
-from app.services.posts_service import PostsService
-
 def create_app():
     app = Flask(__name__)
     load_dotenv()
+
     app.secret_key = os.getenv('SECRET_KEY') or 'a-very-secret-key'
 
-    # ------------------ SQL Connection   
+    # ------------------ SQL Connection
     user = os.getenv("user")
     password = os.getenv("password")
     host = os.getenv("host")
@@ -28,52 +26,34 @@ def create_app():
     DATABASE_URL = f"postgresql://{user}:{password}@{host}:{port}/{dbname}?sslmode=require"
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    # ------------------ JWT
+
+    # ------------------ JWT Configuration
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "dev-secret")
-    # Usaremos cookies HttpOnly para SSR sin JS
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_COOKIE_SECURE"] = False      # True en producción con HTTPS
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]  # Use HttpOnly cookies
+    app.config["JWT_COOKIE_SECURE"] = False         # True in production with HTTPS
     app.config["JWT_COOKIE_SAMESITE"] = "Lax"
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # Mínimo: desactiva CSRF; en prod actívalo
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False   # Enable in production
 
     jwt.init_app(app)
 
-    @app.before_request
-    def load_current_user():
-        g.current_user_id = None
-        try:
-            verify_jwt_in_request(optional=True)
-            g.current_user_id = get_jwt_identity()
-        except Exception:
-            pass
-
-    @app.context_processor
-    def inject_user():
-        return {"current_user_id": getattr(g, "current_user_id", None)}
-
-    # ------------------ Endpoint Routing
+    # ------------------ Pages
     @app.route('/')
     def home():
         from app.models import Posts
         posts = db.session.query(Posts).all()
-        for post in posts:
-            print(f"Debug votes: {post.votes}")
-        
         return render_template('home.html', posts=posts)
-    
+
     @app.route('/login')
     def login():
         return render_template('login.html')
-    
+
     @app.route('/register')
     def register():
         return render_template('register.html')
 
     @app.route('/post/<int:id>')
     def post(id):
-        from app.models import Posts
-        from app.models import PostComment
+        from app.models import Posts, PostComment
         post = Posts.query.get_or_404(id)
         post_comments = db.session.query(PostComment).filter_by(post_id=post.post_id).all()
         return render_template('post.html', post=post, post_comments=post_comments)
@@ -86,36 +66,58 @@ def create_app():
     def profile(id):
         return render_template('profile.html', user_id=id)
 
-    # --- Initialize extensions WITH the app instance ---
+    # --- Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Test the connection
+    # Test DB connection
     try:
         from sqlalchemy import create_engine
         engine = create_engine(DATABASE_URL)
-        with engine.connect() as connection:
+        with engine.connect():
             print("Connection successful!")
     except Exception as e:
         print(f"Failed to connect: {e}")
 
+    # ------------------ Current User Injection
+    def get_current_user():
+        try:
+            from app.models.users_entity import Users
+            verify_jwt_in_request(optional=True)
+            user_id = get_jwt_identity()
+            print(f"DEBUG get_current_user(): user_id from JWT = {user_id}")
+            if user_id:
+                user = Users.query.get(user_id)
+                print(f"DEBUG get_current_user(): loaded user = {user}")
+                return user
+        except Exception as e:
+            print(f"DEBUG get_current_user(): error = {e}")
+        return None
+
+    @app.context_processor
+    def inject_user():
+        user = get_current_user()
+        print("DEBUG inject_user():", {
+            "jwt_identity": get_jwt_identity() if user else None,
+            "user_obj": repr(user) if user else None
+        })
+        return dict(user=user, current_user_id=user.user_id if user else None)
+
     # ------------------ Endpoint Routing & Blueprints
     from app.routes.users_routes import UserRoutes
     UserRoutes(app)
-    
+
     from app.routes.posts_routes import PostRoutes
     PostRoutes(app)
-    
+
     from app.routes.post_vote_routes import PostVoteRoutes
     PostVoteRoutes(app)
-    
+
     from app.routes.post_comment_routes import PostCommentRoutes
     PostCommentRoutes(app)
 
-    from app.routes.auth_routes import AuthRoutes
+    from app.routes.auth_routes import AuthRoutes, auth_bp
     AuthRoutes(app)
-
-    # ------------------
+    app.register_blueprint(auth_bp)
 
     return app
-

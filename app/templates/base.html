@@ -25,18 +25,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('new_post') }}">Publicar</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('profile', id=123) }}">Mi perfil</a>
-                </li>
             </ul>
 
-            <div class="d-flex">
-                {% if current_user_id %}
-                <form action="{{ url_for('logout') }}" method="post" class="d-inline">
+            <div class="d-flex align-items-center">
+                {% if user %}
+                <form action="{{ url_for('api_logout') }}" method="post" class="d-flex align-items-center">
+                    <span class="me-2 text-muted">
+                        Bienvenido/a, <strong>{{ user.username }}</strong>
+                    </span>
                     <button class="btn btn-outline-secondary btn-sm" type="submit">Salir</button>
                 </form>
                 {% else %}
-                <a class="btn btn-primary btn-sm" href="{{ url_for('login_view') }}">Login</a>
+                <a class="btn btn-submit btn-sm me-1" href="{{ url_for('register') }}">Registrarse</a>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('login') }}">Iniciar sesión</a>
                 {% endif %}
             </div>
         </div>

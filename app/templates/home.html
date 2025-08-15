@@ -1,6 +1,6 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}All Posts{% endblock %}
+{% block title %}Polaris Overflow - Inicio{% endblock %}
 
 {% block content %}
 <h1 class="mb-4 ms-3">Welcome</h1>
@@ -11,7 +11,7 @@
             <h5 class="card-title">{{ post.title }}</h5>
             <p class="card-text">{{ post.commentary }}</p>
             <p><strong>Author:</strong> {{ post.creator }} | <strong>Priority:</strong> {{ post.priority }}</p>
-            <p><small>Created: {{ post.creation_date }}</small></p>
+            <p><small>{{ post.creation_date.strftime('%b %d, %Y - %I:%M %p') }}</small></p>
             <div class="d-flex align-items-center">
                 <a href="{{ url_for('post', id=post.post_id) }}" class="btn btn-info">Ver</a>
                 <p class="mb-1 ms-3">

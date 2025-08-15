@@ -1,12 +1,16 @@
 ﻿from flask import request, jsonify
 from sqlalchemy.exc import IntegrityError
 from app.models.posts_entity import db, Posts
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 def PostRoutes(app):
     @app.route('/api/posts', methods=['GET', 'POST'])
+    @jwt_required(optional=True)
     def post_api():
         if request.method == 'GET':
             try:
+                current_user_id = get_jwt_identity()
                 all_posts = Posts.query.all()
 
                 post_list = [
@@ -19,7 +23,9 @@ def PostRoutes(app):
                         "affected_area": post.affected_area,
                         "priority": post.priority,
                         "creation_date": post.creation_date.isoformat(),
-                        "expiration_date": post.expiration_date.isoformat()
+                        "expiration_date": post.expiration_date.isoformat(),
+                        
+                        "is_mine": post.created_by == current_user_id,
                     } for post in all_posts
                 ]
 
@@ -30,18 +36,23 @@ def PostRoutes(app):
 
         elif request.method == 'POST':
             try:
-                if not request.is_json:
-                    return jsonify({"error": "Request must be JSON"}), 400
+                print("Received form data:", request.form)
 
-                data = request.get_json()
+                # Check if it's form data or JSON
+                if request.is_json:
+                    data = request.get_json()
+                else:
+                    data = request.form
 
                 title = data.get('title')
                 commentary = data.get('commentary')
                 affected_area = data.get('affected_area')
                 priority = data.get('priority')
-                created_by = data.get('created_by')
+                created_by = get_jwt_identity()
+                
+                print("Created by:" + created_by)
 
-                if not all([title, commentary, affected_area, priority, created_by]):
+                if not all([title, commentary, affected_area, priority]):
                     return jsonify({"error": "Missing one or more required fields"}), 400
 
                 new_post = Posts(
