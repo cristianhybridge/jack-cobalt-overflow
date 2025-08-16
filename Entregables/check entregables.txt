@@ -1,0 +1,59 @@
+Checkpoint 1: Prototipo y estructura inicial
+
+	Entregable 1: Un documento PDF que contenta el prototipo de todas las vistas o pantallas que integrarán el sistema.
+	Status:
+
+	Entregable 2: Publicar la liga de su repositorio público en Github el cual debe contener la estructura inicial del proyecto, archivo README y archivo requirements.txt
+	Status:Falta README
+	
+
+Checkpoint 2: Diseño inicial de la base de datos y flujos de usuario
+
+	Entregable 1: Esquema entidad-relación de la base de datos que utilizará la aplicación. Este esquema deberá subirse en la plataforma en el apartado indicado, y adicionalmente, se deberá subir al repositorio en una carpeta llamada “documentation/db”.
+	Status:OK
+	
+	Entregable 2: Diagramas de flujo de los distintos casos de uso que los usuarios podrán ejecutar en la plataforma. Estos diagramas deberán deberán subir al repositorio sin comprimirse en carpeta.
+	Status:
+	
+Checkpoint 3: Desarrollo de landing page, login y sign up
+
+	Entregable 1: Los estudiantes deberán tomar capturas de pantalla de las siguientes vistas desarrolladas e implementadas:
+
+	Página de inicio para usuarios sin sesión iniciada
+	Status:OK
+	
+	Página de inicio para usuarios con sesión iniciada
+	Status:OK
+	
+	Inicio de sesión
+	Status:OK
+	
+	Registro de usuario (nuevos usuarios)
+	Status:OK
+	
+	Los estudiantes deberán subir las capturas de pantalla al apartado indicado. 
+
+	Entregable 2: Grabación de pantalla que muestre el flujo completo de cómo un usuario puede navegar en la plataforma hasta este punto.
+	Status:
+		
+	Los estudiantes deberán subir el video al apartado indicado. 
+
+Checkpoint 4: Implementación de autenticación y autorización
+
+	Entregable 1: Grabación de pantalla que muestre el flujo completo de un usuario registrándose en la plataforma.
+	Status:
+	
+	Entregable 2: Grabación de pantalla que muestre el flujo completo de un usuario iniciando sesión en la plataforma.
+	Status:
+	
+	Entregable 3: Grabación de pantalla que muestre la persistencia de la sesión del usuario.
+	Status:
+	
+Checkpoint 5:  Implementación de la página inicial de la aplicación
+
+	Entregable 1: Capturas de pantalla de la página inicial de la aplicación mostrando el contenido dinámico basado en la sesión del usuario.
+	Status:OK
+	
+	Entregable 2: Video demostrativo que muestre la interacción y funcionalidad principal de la página inicial, destacando cómo cambia en función de la sesión del usuario.
+	Status:
+	

@@ -41,6 +41,10 @@ def create_app():
 
     # ------------------ Pages
     @app.route('/')
+    def welcome():
+        return render_template('welcome.html')
+    
+    @app.route('/home')
     def home():
         posts = PostsService().get_all()
         return render_template('home.html', posts=posts)
