@@ -1,8 +1,10 @@
-﻿from flask import request, jsonify
+﻿from flask import request, jsonify, redirect, url_for
 from sqlalchemy.exc import IntegrityError
 from app.models.posts_entity import db, Posts
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
+from app.services import posts_service
+from app.services.posts_service import PostsService
 
 def PostRoutes(app):
     @app.route('/api/posts', methods=['GET', 'POST'])
@@ -11,7 +13,9 @@ def PostRoutes(app):
         if request.method == 'GET':
             try:
                 current_user_id = get_jwt_identity()
-                all_posts = Posts.query.all()
+                
+                posts_service = PostsService()
+                all_posts = posts_service.get_all()
 
                 post_list = [
                     {
@@ -38,7 +42,6 @@ def PostRoutes(app):
             try:
                 print("Received form data:", request.form)
 
-                # Check if it's form data or JSON
                 if request.is_json:
                     data = request.get_json()
                 else:
@@ -48,11 +51,12 @@ def PostRoutes(app):
                 commentary = data.get('commentary')
                 affected_area = data.get('affected_area')
                 priority = data.get('priority')
+                expiration_date = data.get('expiration_date')
                 created_by = get_jwt_identity()
                 
                 print("Created by:" + created_by)
 
-                if not all([title, commentary, affected_area, priority]):
+                if not all([title, commentary, priority]):
                     return jsonify({"error": "Missing one or more required fields"}), 400
 
                 new_post = Posts(
@@ -60,13 +64,14 @@ def PostRoutes(app):
                     commentary=commentary,
                     affected_area=affected_area,
                     priority=priority,
+                    expiration_date=expiration_date,
                     created_by=created_by
                 )
-
+            
                 db.session.add(new_post)
                 db.session.commit()
 
-                return jsonify({"message": "Post created successfully!", "post_id": new_post.post_id}), 201
+                return redirect(url_for('post', id=new_post.post_id))
 
             except IntegrityError as e:
                 db.session.rollback()
@@ -75,4 +80,16 @@ def PostRoutes(app):
             except Exception as e:
                 db.session.rollback()
                 return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+        return None
+
+    # Delete hardcodeado para no usar javascript jeje
+    @app.route("/api/post/<int:post_id>", methods=["POST"])
+    @jwt_required(optional=True)
+    def delete_post(post_id):
+        if request.form.get("_method") == "DELETE":
+            from app.models.posts_entity import Posts
+            post = Posts.query.get_or_404(post_id)
+            db.session.delete(post)
+            db.session.commit()
+            return redirect(url_for('home'))
         return None

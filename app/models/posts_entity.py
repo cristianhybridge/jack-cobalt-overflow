@@ -1,10 +1,7 @@
-from datetime import timezone
+from datetime import datetime, timezone
 
-from sqlalchemy import func
+from app.database import db
 
-from app import db
-
-# Define el modelo de usuario
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import func, select
 
@@ -40,13 +37,29 @@ class Posts(db.Model):
         print(f"[DEBUG] Post {self.post_id} -> comments_count = {count}")
         return count
 
+    # Gracias a Gemini por esta maravilla de hybrid property
+    @hybrid_property
+    def time_since_creation(self):
+        now = datetime.now(timezone.utc)
 
-    # @votes.expression
-    # def votes(cls):
-    #     from app.models.post_vote_entity import PostVote
-    #     return (
-    #         select(func.count(PostVote.post_vote_id))
-    #         .where(PostVote.post_id == cls.post_id)
-    #         .correlate(cls)
-    #         .scalar_subquery()
-    #     )
+        # Ensure creation_date is timezone-aware
+        creation = self.creation_date
+        if creation.tzinfo is None:
+            creation = creation.replace(tzinfo=timezone.utc)
+            
+        delta = now - creation
+
+        seconds = int(delta.total_seconds())
+        if seconds < 30:
+            return f"Recién"
+        elif seconds < 60:
+            return f"Hace {seconds} segundo{'s' if seconds != 1 else ''}"
+        elif seconds < 3600:
+            minutes = seconds // 60
+            return f"Hace {minutes} minuto{'s' if minutes != 1 else ''}"
+        elif seconds < 86400:
+            hours = seconds // 3600
+            return f"Hace {hours} hora{'s' if hours != 1 else ''}"
+        else:
+            days = seconds // 86400
+            return f"Hace {days} día{'s' if days != 1 else ''}"

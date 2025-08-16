@@ -1,4 +1,4 @@
-﻿from flask import request, jsonify
+﻿from flask import request, jsonify, redirect, url_for
 from sqlalchemy.exc import IntegrityError
 from app.models.users_entity import db, Users
 
@@ -24,10 +24,12 @@ def UserRoutes(app):
 
         elif request.method == 'POST':
             try:
-                if not request.is_json:
-                    return jsonify({"error": "Request must be JSON"}), 400
-
-                data = request.get_json()
+                print("Received form data:", request.form)
+                
+                if request.is_json:
+                    data = request.get_json()
+                else:
+                    data = request.form
 
                 username = data.get("username")
                 password = data.get("password")
@@ -45,7 +47,7 @@ def UserRoutes(app):
                 db.session.add(new_user)
                 db.session.commit()
 
-                return jsonify({"message": "User created successfully!", "user_id": new_user.user_id}), 201
+                return redirect(url_for('home'))
 
             except IntegrityError as e:
                 db.session.rollback()

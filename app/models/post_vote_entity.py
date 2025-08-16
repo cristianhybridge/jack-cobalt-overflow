@@ -1,8 +1,5 @@
-﻿from datetime import timezone
-
-from sqlalchemy import func, UniqueConstraint, ForeignKey
-from sqlalchemy.orm import relationship
-from app import db
+﻿from sqlalchemy import func, UniqueConstraint, ForeignKey
+from app.database import db
 
 class PostVote(db.Model):
     __tablename__ = 'post_vote'
@@ -18,4 +15,3 @@ class PostVote(db.Model):
 
     def __repr__(self):
         return f"<post_vote {self.post_vote_id}: Post id: '{self.post_id}' / Created by: '{self.created_by}'>"
-

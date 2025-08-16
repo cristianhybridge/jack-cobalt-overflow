@@ -5,8 +5,11 @@ from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 
+from app.services.posts_service import PostsService
+from app.models import Posts, PostComment
+
 # Initialize extensions
-db = SQLAlchemy()
+from app.database import db
 migrate = Migrate()
 jwt = JWTManager()
 
@@ -39,8 +42,7 @@ def create_app():
     # ------------------ Pages
     @app.route('/')
     def home():
-        from app.models import Posts
-        posts = db.session.query(Posts).all()
+        posts = PostsService().get_all()
         return render_template('home.html', posts=posts)
 
     @app.route('/login')
@@ -53,7 +55,6 @@ def create_app():
 
     @app.route('/post/<int:id>')
     def post(id):
-        from app.models import Posts, PostComment
         post = Posts.query.get_or_404(id)
         post_comments = db.session.query(PostComment).filter_by(post_id=post.post_id).all()
         return render_template('post.html', post=post, post_comments=post_comments)

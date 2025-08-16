@@ -14,7 +14,14 @@ def AuthRoutes(app):
     # ------------------ REGISTER ------------------
     @auth_bp.route('/api/register', methods=['POST'])
     def register():
-        data = request.get_json()
+
+        print("Received form data:", request.form)
+
+        if request.is_json:
+            data = request.get_json()
+        else:
+            data = request.form
+            
         username = data.get('username')
         password = data.get('password')
         nickname = data.get('nickname')
@@ -28,11 +35,15 @@ def AuthRoutes(app):
 
         new_user = users_service.create_user(username, password, nickname)
 
-        return jsonify({
+        result = jsonify({
             "success": True,
             "message": f"Usuario {new_user.username} creado exitosamente!",
             "user_id": new_user.user_id
         }), 201
+        
+        print(result)
+
+        return redirect(url_for('home'))
 
     # ------------------ LOGIN ------------------
     @app.post("/api/login")
@@ -54,14 +65,13 @@ def AuthRoutes(app):
                 return render_template("login.html", error="Usuario o contraseña incorrectos.")
             return jsonify({"error": "Usuario o contraseña incorrectos."}), 401
 
-        # Create JWT valid for 1 day
+        # JWT valido por 1 dia
         access_token = create_access_token(
             identity=str(user.user_id),
             expires_delta=timedelta(days=1)
         )
 
-
-        # Redirect to home with JWT cookie set
+        # Una vez logueado, redirecciona al home con las cookies del JWT para permanecer con la sesion iniciada
         resp = redirect(url_for("home"))
         set_access_cookies(resp, access_token)
         return resp

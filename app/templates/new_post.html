@@ -4,39 +4,42 @@
 
 {% block content %}
 <h1>Nueva publicación</h1>
-<form method="POST" action="/api/posts" class="w-50" style="max-width: 25%;">
+<form method="POST" action="/api/posts">
     <div class="mb-4 mt-4">
         <label for="title" class="form-label">Título</label>
         <input type="text" class="form-control" placeholder="Escribe algo..." id="title" name="title" required>
     </div>
     <div class="mb-4 mt-4">
         <label for="commentary" class="form-label">Comentarios</label>
-        <textarea class="form-control" placeholder="Escribe algo..." id="commentary" name="commentary" required></textarea>
+        <textarea class="form-control" placeholder="Escribe algo..." id="commentary" name="commentary" maxlength="5000" required></textarea>
+        <p class="form-text text-muted" id="charCounter">Máximo 5000 caracteres.</p>
     </div>
     <div class="mb-4 mt-4">
         <label for="affected_area" class="form-label">Area afectada (Opcional)</label>
         <textarea class="form-control" placeholder="Escribe algo..." id="affected_area" name="affected_area"></textarea>
     </div>
-    <div class="mb-4 mt-4">
-        <label for="priority" class="form-label">Prioridad</label>
-        <select class="form-control" id="priority" name="priority" required>
-            <option value="" disabled selected>Selecciona un valor</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-    </div>
-    <div class="mb-4 mt-4">
-        <label for="expiration_date" class="form-label">Expiración</label>
-        <input
-                type="date"
-                class="form-control"
-                id="expiration_date"
-                name="expiration_date"
-                required
-        >
+    <div class="mb-4 mt-4 d-flex"  style="width: 50%">
+        <div class="me-4">
+            <label for="priority" class="form-label">Prioridad</label>
+            <select class="form-control" id="priority" name="priority" required>
+                <option value="" disabled selected>Selecciona un valor</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </div>
+        <div>
+            
+            <label for="expiration_date" class="form-label">Expiración</label>
+            <input
+                    type="date"
+                    class="form-control"
+                    id="expiration_date"
+                    name="expiration_date"
+                    required>
+        </div>
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

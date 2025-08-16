@@ -5,7 +5,9 @@ class PostsService:
         self.posts_repository = PostsRepository()
 
     def get_all(self):
-        return self.posts_repository.model.query.all()
+        return (self.posts_repository.model.query
+                .order_by(self.posts_repository.model.post_id.desc())
+                .all())
 
     def get_by_id(self, post_id):
         return self.posts_repository.model.query.filter_by(post_id=post_id).first()

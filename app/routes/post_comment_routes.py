@@ -33,7 +33,6 @@ def PostCommentRoutes(app):
             try:
                 print("Received form data:", request.form)
 
-                # Check if it's form data or JSON
                 if request.is_json:
                     data = request.get_json()
                 else:
