@@ -8,9 +8,16 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
             <a href="{{ url_for('home') }}" class="btn btn-info mb-3">Regresar</a>
+            <div>
             {% if post.created_by == user.user_id %}
             <p class="badge rounded-pill" style="background:blue; color:white;"><strong>Tú</strong></p>
             {% endif %}
+            {% if post.expiration_date < current_time() %}
+            <p class="badge rounded-pill" style="background:red; color:white;"><strong>Terminó</strong></p>
+            {% else %}
+            <p class="badge rounded-pill" style="background:green; color:white;"><strong>Pendiente</strong></p>
+            {% endif %}
+            </div>
         </div>
         
         <div class="d-flex justify-content-between align-items-start">
@@ -33,10 +40,15 @@
         {% else %}
         <p style="margin-bottom: 0;"><strong>Autor: <i style="color:rebeccapurple;">{{ post.creator }}</i></strong></p>
         {% endif%}
+        
 
         <p>{% if post.affected_area %}<strong>Área:</strong> {{ post.affected_area }}{% endif %}</p>
 
-        <p style="margin-bottom: 0;"><strong>Vencimiento:</strong> {{ post.expiration_date.strftime('%b %d, %Y') }}</p>
+        {% if post.expiration_date < current_time() %}
+            <p style="margin-bottom: 0; color: red;"><strong>Terminó el:</strong> {{ post.expiration_date.strftime('%b %d, %Y') }}</p>
+        {% else %}
+            <p style="margin-bottom: 0; color: darkgreen;"><strong>Vencimiento:</strong> {{ post.expiration_date.strftime('%b %d, %Y') }}</p>
+        {% endif %}
         <p><strong>Prioridad:</strong> {{ post.priority }}</p>
         <p style="margin-bottom: 0;"><small>{{ post.creation_date.strftime('%b %d, %Y - %I:%M %p') }}</small></p>
         <p><small><i>{{ post.time_since_creation }}</i></small></p>

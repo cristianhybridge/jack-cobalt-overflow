@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
 from flask_sqlalchemy import SQLAlchemy
@@ -47,7 +49,7 @@ def create_app():
     @app.route('/home')
     def home():
         posts = PostsService().get_all()
-        return render_template('home.html', posts=posts)
+        return render_template('home.html', posts=posts, current_time=datetime.now)
 
     @app.route('/login')
     def login():
@@ -61,7 +63,7 @@ def create_app():
     def post(id):
         post = Posts.query.get_or_404(id)
         post_comments = db.session.query(PostComment).filter_by(post_id=post.post_id).all()
-        return render_template('post.html', post=post, post_comments=post_comments)
+        return render_template('post.html', post=post, post_comments=post_comments, current_time=datetime.now)
 
     @app.route('/post/new')
     def new_post():
